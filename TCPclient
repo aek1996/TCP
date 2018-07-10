@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <sys/types.h>// sockets library 
+#include <sys/socket.h>
+
+#include <netinet/in.h>
+
+#include <errno.h>
+#define MYPORT 4444
+
+int main()
+
+{
+	//create a socket
+	
+	int network_socket;
+	
+	//socket() = (int domain,int type,int protocol)
+     
+	//SOCK_STREAM: veri akış socket : TCP/IP : 0 means default TCP protocol
+		
+	//specify adress for the sockets :: socket icin bir adres belirtin.
+	
+	/* sockaddr yapısı
+	 *
+	 *unsigned short  sa_family   :: adres ailesi(AF_***)
+	 *char            sa_data[14] :: data protokolunun 14 bytei
+	 
+
+         * sockaddr_in yapısı
+	 *short int            sin_family  :: adres ailesi
+	 *unsigned short int   sin_port    :: port numarası
+	 *struct in_addr       sin_addr    :: internet adresi
+	 *unsigned char        sin_zero[8] :: sockaddr ile aynı boyutta
+	 */
+	network_socket=socket(AF_INET , SOCK_STREAM,0);
+	
+	struct sockaddr_in server_address;
+
+	server_address.sin_family = AF_INET;
+	server_address.sin_port = htons(MYPORT);//1024'den büyük bir port seçilebilir. 9002 port number.
+	server_address.sin_addr.s_addr = INADDR_ANY;//INADDR_ANY = IP adresimi kullan.,varolan bir IP kullanmak için inet_addr("IP") seklinde kullanılabilir.
+
+	int connection_status;
+	//connect(int sockfd,(struct sockaddr*)&serv_add,sizeof(serv_add))
+
+        //we should check the error for connection :: baglanti kontrolu yapmalıyız.
+		
+	if(connection_status = connect(network_socket,(struct sockaddr *)&server_address,sizeof(server_address))==-1)
+	{
+		printf("Baglanti hatasi\n");
+		perror("connect");
+		exit(1);
+	}
+	
+	if(connection_status == 0)
+	{
+		printf("Baglanti basarili\n");
+		char server_response[256];
+		recv(network_socket,&server_response,sizeof(server_response),0);
+		printf("\nserverin donusu = %s",server_response);
+
+	}
+
+	//if value=0 it's ok
+	//if value=-1 error
+	
+	//receive the data from the server
+
+	close(socket);
+	return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+
