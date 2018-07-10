@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <sys/socket.h>
+#include <sys/types.h>
+
+#include <netinet/in.h>
+
+#include <errno.h>//perror için gerekli
+
+#define MYPORT 4444//kullanıcıların baglanacagı port
+
+#define BACKLOG 5//bağlantı kuyruğunda bekletileceklerin sayısı 5'den büyük de secilebilirdi.
+
+
+int main()
+{
+
+	char server_message[256] ;
+	printf("Cliente gonderilecek mesaji giriniz:%s",server_message);
+	scanf("%s",&server_message);
+
+	
+	//create a server socket :: server soketi oluşturma
+	
+	int server_socket;
+
+	server_socket = socket(AF_INET,SOCK_STREAM,0);
+	
+	// define server address :: server adresi tanımlamak
+
+	struct sockaddr_in server_address;
+
+	server_address.sin_family = AF_INET;
+	server_address.sin_port = htons(MYPORT);//1024'den büyük bir değer seçilebilir.
+	server_address.sin_addr.s_addr = INADDR_ANY;//INADDR_ANY kendi IP mi kullan.
+
+
+	//bind the socket our specified IP and ports  :: socketi belirttiğimiz port ve IP ye baglama bind()
+	
+	//bind(sockfd,(struct sockaddr *)&myaddress,sizeof(server_address)
+	if(bind(server_socket,(struct sockaddr *)&server_address,sizeof(server_address))==-1)
+	{
+	perror("bind");
+	exit(1);
+	}	
+	//perror komutu ile hata kontrolü
+
+	// 5 tercihen secildi buyuk network uygulamaları icin 5'ten büyük bir değer kullanılabilir.
+				       //int listen(server_socket,int backlog);
+	if(listen(server_socket,BACKLOG)==-1)
+	{
+	perror("listen");
+	exit(1);
+	}
+	//perror ile hata kontrolü
+	
+	int client_socket;
+
+	client_socket = accept(server_socket,NULL,NULL);
+
+	//send the message
+	
+	send(client_socket,server_message,sizeof(server_message),0);
+	
+	
+	//close the socket
+	//karsı tarafin adres bilgilerini çagırma getpeername()	
+	/*int gpn;
+
+	gpn = getpeername(server_socket,(struct sockaddr *)&server_address,sizeof(server_address));
+
+	printf("%d",getpeername);
+	*/
+	
+	close(server_socket);
+
+	return 0;
+
+}
+
+
+	
